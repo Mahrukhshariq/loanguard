@@ -5,8 +5,10 @@ import joblib
 import numpy as np
 
 # Load model and feature names
-model = joblib.load('../model/model.pkl')
-features = joblib.load('../model/features.pkl')
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model = joblib.load(os.path.join(BASE_DIR, '../model/model.pkl'))
+features = joblib.load(os.path.join(BASE_DIR, '../model/features.pkl'))
 
 # Create FastAPI app
 app = FastAPI(title="LoanGuard API")
