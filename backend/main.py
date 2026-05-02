@@ -3,17 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
-
-# Load model and feature names
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model = joblib.load(os.path.join(BASE_DIR, '../model/model.pkl'))
-features = joblib.load(os.path.join(BASE_DIR, '../model/features.pkl'))
 
-# Create FastAPI app
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model = joblib.load(os.path.join(BASE_DIR, 'model/model.pkl'))
+features = joblib.load(os.path.join(BASE_DIR, 'model/features.pkl'))
+
 app = FastAPI(title="LoanGuard API")
 
-# Allow frontend to talk to backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Define what input data looks like
 class LoanApplication(BaseModel):
     Gender: int
     Married: int
@@ -36,15 +32,12 @@ class LoanApplication(BaseModel):
     Property_Area_Semiurban: int
     Property_Area_Urban: int
 
-# Health check endpoint
 @app.get("/health")
 def health():
     return {"status": "LoanGuard API is running"}
 
-# Prediction endpoint
 @app.post("/predict")
 def predict(data: LoanApplication):
-    # Convert input to array in correct feature order
     input_data = np.array([[
         data.Gender,
         data.Married,
@@ -59,19 +52,14 @@ def predict(data: LoanApplication):
         data.Property_Area_Semiurban,
         data.Property_Area_Urban
     ]])
-
-    # Get prediction and probability
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
-
-    # Risk label
     if probability >= 0.75:
         risk = "Low Risk"
     elif probability >= 0.5:
         risk = "Medium Risk"
     else:
         risk = "High Risk"
-
     return {
         "approved": bool(prediction),
         "probability": round(float(probability), 4),
