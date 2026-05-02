@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Data (too large for GitHub)
+data/
+
+# Node modules
+frontend/node_modules/
+
+# Environment
+.env
